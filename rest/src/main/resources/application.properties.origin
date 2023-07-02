@@ -1,4 +1,7 @@
-driver=com.mysql.cj.jdbc.Driver
-url=
-uname=
-password=
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.driver-class-name=
+
+security.secret.access=
+security.secret.refresh=

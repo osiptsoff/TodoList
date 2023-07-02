@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,66 +20,52 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.todolist.rest.model.Task;
-import ru.todolist.rest.repository.TaskDAO;
+import ru.todolist.rest.service.TaskService;
 
 class NotFoundException extends RuntimeException { private static final long serialVersionUID = 1L; }
 
 @RestController
-@RequestMapping(path = "users/{iduser}/tasks")
+@RequestMapping(path = "rest/users/tasks")
 public class TaskController {	
 	@Autowired
-	private TaskDAO taskDao;
+	private TaskService taskService;
 	
 	@GetMapping()
-	public List<Task> getTasks(@PathVariable int iduser, @RequestParam(required = false) Boolean actual) {
-		List<Task> result;
-		if(actual != null)
-			result = taskDao.getTasksOfUserByActuality(iduser, actual);
-		else
-			result =  taskDao.getTasksOfUser(iduser);
+	public List<Task> getTasks(@RequestParam(required = false) Boolean actual,
+			@RequestParam(required = false) String date) {
+		List<Task> tasks = taskService.getTasks(getCurrentUserId(), actual, date);
 		
-		if(result.size() == 0) 
+		if(tasks.isEmpty())
 			throw new NotFoundException();
 		
-		return result;
-	}
-	
-	@GetMapping("/{date}")
-	public List<Task> getByDate(@PathVariable int iduser, @PathVariable String date,
-			@RequestParam(required = false) Boolean actual) {
-		var result = taskDao.getTasksOfUserByDate(iduser, date);
-		
-		if(actual != null)
-			result = result.stream().filter(e -> e.getActual() == actual).toList();
-		
-		if(result.size() == 0)
-			throw new NotFoundException();
-		
-		return result;
+		return tasks;
 	}
 	
 	@PostMapping()
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
-	public void addTask(@PathVariable int iduser, @RequestBody Task task) {
-		task.setIduser(iduser);
-		taskDao.insert(task);
+	public void addTask(@RequestBody Task task) {
+		taskService.addTask(getCurrentUserId(), task);
 	}
 	
 	@DeleteMapping("/{idtask}")
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
-	public void removeTask(@PathVariable int iduser, @PathVariable int idtask) {
-		int rowsAffected = taskDao.removeTaskOfUserById(iduser, idtask);
+	public void removeTask(@PathVariable int idtask) {
+		int rowsAffected = taskService.removeTask(getCurrentUserId(), idtask);
 		if(rowsAffected == 0)
 			throw new NotFoundException();
 	}
 	
 	@PutMapping("/{idtask}")
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
-	public void modifyTask(@PathVariable int iduser, @PathVariable int idtask, @RequestBody Task task) {
+	public void modifyTask(@PathVariable int idtask, @RequestBody Task task) {
 		task.setIdtask(idtask);
-		int rowsAffected = taskDao.updateTaskOfUser(iduser, task);
+		int rowsAffected = taskService.modifyTask(getCurrentUserId(), idtask, task);
 		if(rowsAffected == 0)
 			throw new NotFoundException();
+	}
+	
+	private Integer getCurrentUserId() {
+		return (Integer)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	}
 	
 	@ExceptionHandler(DataAccessException.class)

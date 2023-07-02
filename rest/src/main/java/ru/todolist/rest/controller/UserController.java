@@ -2,8 +2,10 @@ package ru.todolist.rest.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,15 +17,24 @@ import ru.todolist.rest.model.User;
 import ru.todolist.rest.repository.DAO;
 
 @RestController
-@RequestMapping(path = "users")
+@RequestMapping(path = "rest/users")
 public class UserController {
 	@Autowired
 	private DAO<User> userDao;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	@PostMapping()
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
-	public void addTask(@RequestBody User user) {
+	public void addUser(@RequestBody User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		userDao.insert(user);
+	}
+	
+	@ExceptionHandler(DuplicateKeyException.class)
+	private ResponseEntity<String> duplicateKeyExceptionHandler() {
+		return new ResponseEntity<>("Login is taken.", HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(DataAccessException.class)

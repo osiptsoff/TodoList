@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import ru.todolist.rest.model.User;
+import ru.todolist.rest.security.UserDetailsImpl;
 
 @Component
-public class JdbcUserDAO implements DAO<User> {
+public class JdbcUserDAO implements UserDAO {
 	private final JdbcTemplate jdbcTemplate;
 	private final BeanPropertyRowMapper<User> mapper = new BeanPropertyRowMapper<>(User.class);
 	
@@ -64,6 +66,18 @@ public class JdbcUserDAO implements DAO<User> {
 	@Override
 	public int remove(User obj) throws DataAccessException {
 		return removeById(obj.getIduser());
+	}
+
+	@Override
+	public UserDetailsImpl loadUserByUsername(String username) throws UsernameNotFoundException{
+		User user = jdbcTemplate.query("SELECT iduser, login, password FROM user WHERE login = ?",
+				new Object[] {username}, new int[] {Types.VARCHAR},
+				mapper).stream().findAny().orElse(null);
+		
+		if(user == null)
+			throw new UsernameNotFoundException("Username taken");
+		
+		return new UserDetailsImpl(user);
 	}
 
 }
