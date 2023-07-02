@@ -4,12 +4,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,28 +31,4 @@ public class AuthController {
 		return Collections.singletonMap("accessToken", authService.refresh(refreshRequest));
 	}
 	
-	@ExceptionHandler(UsernameNotFoundException.class)
-	private ResponseEntity<String> usernameNotFoundExceptionHandler() {
-		return new ResponseEntity<>("Username not found.", HttpStatus.BAD_REQUEST);
-	}
-
-	@ExceptionHandler(BadCredentialsException.class)
-	private ResponseEntity<String> badCredentialsExceptionHandler() {
-		return new ResponseEntity<>("Password does not match.", HttpStatus.BAD_REQUEST);
-	}
-		
-	@ExceptionHandler(DataAccessException.class)
-	private ResponseEntity<String> dbExceptionHandler() {
-		return new ResponseEntity<>("Database exception happened", HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-	
-	@ExceptionHandler(AuthException.class)
-	private ResponseEntity<String> authExceptionHandler() {
-		return new ResponseEntity<>("Invalid refrersh token.", HttpStatus.FORBIDDEN);
-	}
-	
-	@ExceptionHandler(NumberFormatException.class)
-	private ResponseEntity<String> numberFormatExceptionHandler() {
-		return new ResponseEntity<>("Failed to parse user id from token.", HttpStatus.BAD_REQUEST);
-	}
 }

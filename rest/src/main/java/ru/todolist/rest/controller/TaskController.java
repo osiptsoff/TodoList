@@ -3,12 +3,9 @@ package ru.todolist.rest.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,20 +63,5 @@ public class TaskController {
 	
 	private Integer getCurrentUserId() {
 		return (Integer)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	}
-	
-	@ExceptionHandler(DataAccessException.class)
-	private ResponseEntity<String> dbExceptionHandler() {
-		return new ResponseEntity<>("Database exception happened", HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-	
-	@ExceptionHandler(IllegalArgumentException.class)
-	private ResponseEntity<String> illegalArgumentExceptionHandler() {
-		return new ResponseEntity<>("Illegal argument was passed", HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-	
-	@ExceptionHandler(NotFoundException.class)
-	private ResponseEntity<String> resourceNotFoundExceptionHandler() {
-		return new ResponseEntity<>("Task was not found", HttpStatus.NOT_FOUND); 
 	}
 }

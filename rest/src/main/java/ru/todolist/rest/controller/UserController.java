@@ -1,12 +1,8 @@
 package ru.todolist.rest.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,13 +28,16 @@ public class UserController {
 		userDao.insert(user);
 	}
 	
-	@ExceptionHandler(DuplicateKeyException.class)
-	private ResponseEntity<String> duplicateKeyExceptionHandler() {
-		return new ResponseEntity<>("Login is taken.", HttpStatus.BAD_REQUEST);
-	}
+	/*
+	 * @ExceptionHandler(DuplicateKeyException.class) private ResponseEntity<String>
+	 * duplicateKeyExceptionHandler() { return new
+	 * ResponseEntity<>("Login is taken.", HttpStatus.BAD_REQUEST); }
+	 */
 	
-	@ExceptionHandler(DataAccessException.class)
-	private ResponseEntity<String> dbExceptionHandler() {
-		return new ResponseEntity<>("Database exception happened", HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+	/*
+	 * @ExceptionHandler(DataAccessException.class) private ResponseEntity<String>
+	 * dbExceptionHandler() { return new
+	 * ResponseEntity<>("Database exception happened",
+	 * HttpStatus.INTERNAL_SERVER_ERROR); }
+	 */
 }
