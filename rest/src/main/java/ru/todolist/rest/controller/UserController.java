@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import ru.todolist.rest.model.User;
 import ru.todolist.rest.repository.DAO;
 
@@ -21,23 +24,16 @@ public class UserController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	@Operation(summary = "Adds new user")
+	@ApiResponses({
+		@ApiResponse(responseCode = "204", description = "Succsess."),
+		@ApiResponse(responseCode = "400", description = "Login is taken."),
+		@ApiResponse(responseCode = "500", description = "Exception while database querying.")
+	})
 	@PostMapping()
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
 	public void addUser(@RequestBody User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		userDao.insert(user);
 	}
-	
-	/*
-	 * @ExceptionHandler(DuplicateKeyException.class) private ResponseEntity<String>
-	 * duplicateKeyExceptionHandler() { return new
-	 * ResponseEntity<>("Login is taken.", HttpStatus.BAD_REQUEST); }
-	 */
-	
-	/*
-	 * @ExceptionHandler(DataAccessException.class) private ResponseEntity<String>
-	 * dbExceptionHandler() { return new
-	 * ResponseEntity<>("Database exception happened",
-	 * HttpStatus.INTERNAL_SERVER_ERROR); }
-	 */
 }
