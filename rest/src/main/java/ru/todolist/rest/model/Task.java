@@ -1,11 +1,17 @@
 package ru.todolist.rest.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class Task {
+	@Schema(example = "1", required = true)
 	private int idtask;
+	@Schema(description = "Essense of task",  example = "Visit the dantist", required = true)
 	private String description;
+	@Schema(description = "Date of task", example = "2012-07-21", required = true)
 	private String duedate;
+	@Schema(description = "Marker of actuality", example = "true", required = true)
 	private boolean actual;
+	@Schema(description = "ID of user owning this task", example = "12", required = true)
 	private int iduser;
 	public int getIdtask() {
 		return idtask;
