@@ -1,0 +1,12 @@
+version: "2.19.1"
+services:
+  database:
+    build: ./database
+  backend:
+    build: ./rest
+    ports:
+      - 8080:8080
+    network_mode: host
+    depends_on:
+      - database
+
